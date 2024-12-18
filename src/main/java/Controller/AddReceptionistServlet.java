@@ -12,7 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import BEAN.Receptionist;
 import DAO.Database;
+import DAO.ReceptionistDao;
 
 @WebServlet("/add-receptionist")
 public class AddReceptionistServlet extends HttpServlet {
@@ -88,52 +90,25 @@ public class AddReceptionistServlet extends HttpServlet {
             dispatcher.forward(request, response);
             return;
         }
-
+        Receptionist re = new Receptionist(id, name, salary, gender, phone, cccd, address, role, email, password);
+        ReceptionistDao reDao = new ReceptionistDao(); 
         try {
-            Database.loadDriver();
-            Connection con = Database.getConnection();
-
-            // Check for unique phone number, CCCD, and email
-            String checkUniqueSql = "SELECT COUNT(*) FROM receptionist WHERE phone_number = ? OR cccd = ? OR email = ?";
-            PreparedStatement checkUniqueStmt = con.prepareStatement(checkUniqueSql);
-            checkUniqueStmt.setString(1, phone);
-            checkUniqueStmt.setString(2, cccd);
-            checkUniqueStmt.setString(3, email);
-            ResultSet rsUnique = checkUniqueStmt.executeQuery();
-            if (rsUnique.next() && rsUnique.getInt(1) > 0) {
+            if (!reDao.check_phone_cccd_email(re)) {
                 request.setAttribute("errorMessage", "Phone number, CCCD, or email already exists.<br>");
                 RequestDispatcher dispatcher = request.getRequestDispatcher("add-receptionist.jsp");
                 dispatcher.forward(request, response);
                 return;
             }
 
-            // Check if ID already exists
-            String checkIdSql = "SELECT COUNT(*) FROM receptionist WHERE id = ?";
-            PreparedStatement checkIdStmt = con.prepareStatement(checkIdSql);
-            checkIdStmt.setString(1, id);
-            ResultSet rs = checkIdStmt.executeQuery();
-            if (rs.next() && rs.getInt(1) > 0) {
+            if (!reDao.check_id(re)) {
                 request.setAttribute("errorMessage", "ID already exists.<br>");
                 RequestDispatcher dispatcher = request.getRequestDispatcher("add-receptionist.jsp");
                 dispatcher.forward(request, response);
                 return;
             }
 
-            String sql = "INSERT INTO receptionist (name, salary, gender, phone_number, cccd, address, role, email, password, id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, name);
-            ps.setFloat(2, salary);
-            ps.setString(3, gender);
-            ps.setString(4, phone);
-            ps.setString(5, cccd);
-            ps.setString(6, address);
-            ps.setString(7, role);
-            ps.setString(8, email);
-            ps.setString(9, password);
-            ps.setString(10, id);
-
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected > 0) {
+            
+            if (reDao.insert(re)) {
                 response.sendRedirect("list-receptionist");
             } else {
                 request.setAttribute("errorMessage", "Failed to add receptionist.<br>");

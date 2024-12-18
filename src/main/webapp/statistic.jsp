@@ -335,7 +335,7 @@
                 <input type="Date" id="date-filter" class="date">
                 <button type="button" onclick="applyDateFilter()" class="apply">Xác Nhận</button>
             </div>
-            <table class="table" style="overflow-y: auto; height: 200px">
+            <table class="table" style="overflow-y: scroll; display: block; height: 200px">
                 <thead>
                 <tr>
                     <th>Tên Khách Hàng</th>
@@ -354,13 +354,12 @@
                     </tr>
                 </c:forEach>
                 </tbody>
-                <tfoot>
-                <tr style="padding-right: 100px; color: #00554C; display: flex; margin-top: 30px">
-                    <td colspan="4" style="width: 130px;" ><strong>Tổng doanh thu:</strong></td>
-                    <td>${totalRevenue} VND</td>
-                </tr>
-                </tfoot>
+                
             </table>
+            <DIV style="padding-right: 100px; color: #00554C; display: flex; margin-top: 30px">
+                    <DIV colspan="4" style="width: 130px;" ><strong>Tổng doanh thu:</strong></DIV>
+                    <DIV>${totalRevenue} VND</DIV>
+              </DIV> 
         </div>
     </div>
 </div>

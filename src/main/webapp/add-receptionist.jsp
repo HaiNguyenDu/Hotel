@@ -185,7 +185,7 @@
             </form>
         </div>
     </div>
-    <div class="container">
+    <div class="container" style="overflow-y: scroll; overflow-x: scroll;">
         <div class="container rounded bg-white mt-5 mb-5">
             <div class="row">
                 <div class="col-md-3 border-right">
@@ -196,8 +196,8 @@
                         <span> </span>
                     </div>
                 </div>
-                <div class="col-md-9">
-                    <div class="p-3 py-5">
+                <div class="col-md-9" >
+                    <div class="p-3 py-5" >
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="text-right">Thêm Nhân Viên Lễ Tân</h4>
                         </div>

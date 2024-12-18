@@ -2,8 +2,12 @@ let datedayleft = document.querySelector('.date_left').querySelector('.numbers')
 let datedayright = document.querySelector('.date_right').querySelector('.numbers');
 
 function thang5() {
+    datedayleft.innerHTML += `<div class="date_numbers_items" style="opacity:1;"></div>`;
     datedayleft.innerHTML += `<div class="date_numbers_items" style="opacity:0;"></div>`;
-    datedayleft.innerHTML += `<div class="date_numbers_items" style="opacity:0;"></div>`;
+	datedayleft.innerHTML += `<div class="date_numbers_items" style="opacity:0;"></div>`;
+	datedayleft.innerHTML += `<div class="date_numbers_items" style="opacity:0;"></div>`;
+	datedayleft.innerHTML += `<div class="date_numbers_items" style="opacity:0;"></div>`;
+	datedayleft.innerHTML += `<div class="date_numbers_items" style="opacity:0;"></div>`;
     for (let i = 1; i <= 31; i++) {
         datedayleft.innerHTML += `<div class="date_numbers_items"><div class="numbers_day">${i}</div><div class="money">5.431.000 đ</div></div>`;
     }

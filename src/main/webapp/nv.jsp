@@ -37,6 +37,39 @@
             overflow-y: auto;
 
         }
+        /* Form container */
+		.extend-form {
+		    position: absolute;
+		    background: #fff;
+		    border: 1px solid #ccc;
+		    padding: 20px;
+		    width: 300px;
+		    z-index: 1000;
+		    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+		    border-radius: 5px;
+		}
+		
+		/* Header của form */
+		.extend-form-header {
+		    display: flex;
+		    justify-content: space-between;
+		    align-items: center;
+		    cursor: move; /* Con trỏ chuột dạng kéo */
+		    background-color: #f1f1f1;
+		    padding: 10px;
+		    border-bottom: 1px solid #ccc;
+		    border-radius: 5px 5px 0 0;
+		}
+		
+		/* Nút đóng */
+		.close-btn {
+		    background: transparent;
+		    border: none;
+		    font-size: 20px;
+		    cursor: pointer;
+		}
+
+        
     </style>
 </head>
 <body>
@@ -372,20 +405,48 @@
                 List<Booking> bookings = bookingDao.getAll();
             %>
 
-            <div class="main_QLTP_listuser" >
-                <div class="list-container" >
-                <% for (Booking booking : bookings) { %>
-                <div class="main_QLTP_listuser_item" >
-                    <div class="main_QLTP_listuser_name"><%= booking.getCustomerName() %></div>
-                    <div class="main_QLTP_listuser_cccd"><%= booking.getCccd() %></div>
-                    <div class="main_QLTP_listuser_room"><%= booking.getRoom_name() %></div>
-                    <div class="main_QLTP_listuser_checkin"><%= booking.getCheckinDate() %></div>
-                    <div class="main_QLTP_listuser_checkout"><%= booking.getCheckoutDate() %></div>
-                    <div class="main_QLTP_listuser_button">Gia hạn</div>
+            <div class="main_QLTP_listuser">
+    <div class="list-container">
+        <% for (Booking booking : bookings) { %>
+        <div class="main_QLTP_listuser_item">
+            <div class="main_QLTP_listuser_name"><%= booking.getCustomerName() %></div>
+            <div class="main_QLTP_listuser_cccd"><%= booking.getCccd() %></div>
+            <div class="main_QLTP_listuser_room"><%= booking.getRoom_name() %></div>
+            <div class="main_QLTP_listuser_checkin"><%= booking.getCheckinDate() %></div>
+            <div class="main_QLTP_listuser_checkout"><%= booking.getCheckoutDate() %></div>
+            <div class="main_QLTP_listuser_button" onclick="showExtendForm('<%= booking.getId() %>')">Gia hạn</div>
+
+            <!-- Form hiển thị thông tin -->
+            <div id="extendForm-<%= booking.getId() %>" class="extend-form" style="display: none;">
+                <div class="extend-form-header">
+                    <h3>Gia hạn</h3>
+                    <button class="close-btn" onclick="hideExtendForm('<%= booking.getId() %>')">&times;</button>
                 </div>
-                <% } %>
-                </div>
+                <form id="extendBookingForm-<%= booking.getId() %>">
+                    <label for="textField">ID:</label><br>
+                    <input type="text" id="ID-<%= booking.getId() %>" name="textField" readonly><br><br>
+                    
+                    <label for="textField">CCCD:</label><br>
+                    <input type="text" id="CCCD-<%= booking.getId() %>" name="textField" readonly><br><br>
+                    
+                    <label for="textField">Name:</label><br>
+                    <input type="text" id="Name-<%= booking.getId() %>" name="textField" readonly><br><br>
+                    
+                    <label for="textField">NameRoom:</label><br>
+                    <input type="text" id="Room-<%= booking.getId() %>" name="textField" readonly><br><br>
+
+                    <label for="dateField">Ngày gia hạn:</label><br>
+                    <input type="date" id="dateField-<%= booking.getId() %>" name="dateField" required><br><br>
+
+                    <button type="button" onclick="submitExtendForm('<%= booking.getId() %>')">Lưu</button>
+                    <button type="button" onclick="hideExtendForm('<%= booking.getId() %>')">Đóng</button>
+                </form>
             </div>
+        </div>
+        <% } %>
+    </div>
+</div>
+            
         </div>
     </div>
 </div>
@@ -394,6 +455,102 @@
 <script>
     //listroom
     let line = 0;
+    
+ // Hiển thị form gia hạn
+    function showExtendForm(bookingId) {
+        const form = document.getElementById('extendForm-' + bookingId);
+        form.style.top = window.scrollY + 'px'; // Hiển thị ngay dưới nút
+        form.style.left =window.scrollX + 'px';
+        form.style.display = 'block';
+
+        // Kích hoạt kéo thả form
+        makeDraggable(form);
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", "exended?id=" + bookingId, true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                try {
+                    const responseText = xhr.responseText;
+                    const jsonStart = responseText.indexOf("{");
+                    const jsonResponse = responseText.substring(jsonStart);
+                    const response = JSON.parse(jsonResponse);
+                    document.getElementById('ID-' + bookingId).value = response.IDBooking || '';
+                    document.getElementById('CCCD-' + bookingId).value = response.CCCD || '';
+                    document.getElementById('Name-' + bookingId).value = response.Name || '';
+                    document.getElementById('Room-' + bookingId).value = response.Room || '';
+                    document.getElementById('dateField-' + bookingId).value =  response.date || '';
+                } catch (e) {
+                    console.error("Error parsing response: ", e);
+                    errorMessage.textContent = "Đã xảy ra lỗi. Vui lòng thử lại.";
+                    submitButton.disabled = true;
+                }
+            }
+        };
+        xhr.send("id=" + encodeURIComponent(bookingId));
+    }
+
+    // Ẩn form gia hạn
+    function hideExtendForm(bookingId) {
+        const form = document.getElementById('extendForm-' + bookingId);
+        form.style.display = 'none';
+    }
+
+    // Xử lý khi form được gửi
+    function submitExtendForm(bookingId) {
+        const textField = document.getElementById('textField-' + bookingId).value;
+        const dateField = document.getElementById('dateField-' + bookingId).value;
+
+        fetch('save-extended', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ info: textField, date: dateField })
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert('Gia hạn thành công!');
+                hideExtendForm(bookingId);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Hàm kéo thả form
+    function makeDraggable(element) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        const header = element.querySelector('.extend-form-header');
+        
+        header.onmousedown = dragMouseDown;
+
+        function dragMouseDown(e) {
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+
+            // Di chuyển form
+            element.style.top = (element.offsetTop - pos2) + "px";
+            element.style.left = (element.offsetLeft - pos1) + "px";
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
+
 
     function choicefloor() {
         let floors = document.querySelectorAll(".main_listroom_header_item");
