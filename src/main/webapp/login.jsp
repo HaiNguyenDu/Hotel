@@ -28,7 +28,7 @@
             <!-- Form Đăng Nhập -->
             <form action="login" method="post">
                 <div class="login">
-                    <div class="text">PBL3 HOTEL <br><span style="color: #c99246;">GRAND</span></div>
+                    <div class="text">HOTEL <br><span style="color: #c99246;">GRAND</span></div>
                     <div class="name">
                         <input type="text" name="username" placeholder="UserName" required>
                     </div>

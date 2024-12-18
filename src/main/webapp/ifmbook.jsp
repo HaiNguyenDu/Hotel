@@ -52,7 +52,7 @@
                                 <div class="ifm_daycheck_left_header">
                                     <i class="fa-solid fa-hotel"></i>
                                     <div class="ifm_daycheck_left_header_text" >
-                                    PBL3 Luxury Boutique <br> Hotel</div> </div>
+                                    Luxury Boutique <br> Hotel</div> </div>
                                 <div class="ifm_star">
                                     <i class="fa-solid fa-star"></i>
                                     <i class="fa-solid fa-star"></i>
@@ -241,6 +241,36 @@
     </div>
     <script src="js/ifmbook.js"></script>
     <script>
+    let countpeople = [1, 2, 0];
+    function change(element, elcount) {
+        let elmain = document.querySelector(element);
+        let plus = elmain.querySelector(".plus");
+        let minus = elmain.querySelector(".minus");
+        let count = elmain.querySelector(".count");
+        plus.addEventListener("click", () => {
+            let maxpeople = countpeople[0] * 4 - countpeople[1] - countpeople[2];
+            if (maxpeople > 0 || elcount == 0) {
+                countpeople[elcount]++;
+                count.innerHTML = countpeople[elcount];
+            } else {
+                alert("Số Người Đã Tối Đa cho Số Phòng Bạn Đặt");
+            }
+        });
+        minus.addEventListener("click", () => {
+            let check = ((countpeople[0] - 1) * 4 < (countpeople[1] + countpeople[2])) ? true : false;
+            if (check && elcount == 0) {
+                alert("Số Người Đã Tối Đa cho Số Phòng Bạn Đặt");
+            } else if (countpeople[elcount] > 1) {
+                countpeople[elcount]--;
+                count.innerHTML = countpeople[elcount];
+            } else if (elcount == 2 && countpeople[elcount] >= 1) {
+                countpeople[elcount]--;
+                count.innerHTML = countpeople[elcount];
+            }
+        });
+    }
+    change(".changeadult", 1);
+    change(".changechild", 2);
         document.addEventListener("DOMContentLoaded", function() {
             let basePrice = parseFloat(document.querySelector('.bill_room_money').innerText);
             document.getElementById('base').innerText = basePrice.toLocaleString('vi-VN') + ' ₫';

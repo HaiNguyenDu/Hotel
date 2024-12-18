@@ -31,8 +31,8 @@ public class BookResultServlet extends HttpServlet {
         response.setContentType("text/html; charset=UTF-8");
         int daycheckin = Integer.parseInt(request.getParameter("daycheckin"));
         int daycheckout = Integer.parseInt(request.getParameter("daycheckout"));
-        String dateStringin = "2024-7-"+daycheckin;
-        String dateStringout = "2024-7-"+daycheckout;
+        String dateStringin = "2024-12-"+daycheckin;
+        String dateStringout = "2024-12-"+daycheckout;
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date datein,dateout;
         try {

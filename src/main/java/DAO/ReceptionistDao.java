@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.RequestDispatcher;
+
 import BEAN.Receptionist;
 
 public class ReceptionistDao {
@@ -194,7 +196,73 @@ public class ReceptionistDao {
 			}
 		}
 	}
+	
+	public boolean check_id(Receptionist re) throws SQLException {
+		Database.loadDriver();
+        Connection con = Database.getConnection();
+		 // Check if ID already exists
+        String checkIdSql = "SELECT COUNT(*) FROM receptionist WHERE id = ?";
+        PreparedStatement checkIdStmt = con.prepareStatement(checkIdSql);
+        checkIdStmt.setString(1, re.getId());
+        ResultSet rs = checkIdStmt.executeQuery();
+        if (rs.next() && rs.getInt(1) > 0) {
+            return false;
+        }
+        return true;
+	}
+	
+	public boolean check_phone_cccd_email(Receptionist re) {
+		try {
+			Database.loadDriver();
+            Connection con = Database.getConnection();
 
+            // Check for unique phone number, CCCD, and email
+            String checkUniqueSql = "SELECT COUNT(*) FROM receptionist WHERE phone_number = ? OR cccd = ? OR email = ?";
+            PreparedStatement checkUniqueStmt = con.prepareStatement(checkUniqueSql);
+            checkUniqueStmt.setString(1, re.getPhone_number());
+            checkUniqueStmt.setString(2, re.getCCCD());
+            checkUniqueStmt.setString(3, re.getCCCD());
+            ResultSet rsUnique = checkUniqueStmt.executeQuery();
+            if (rsUnique.next() && rsUnique.getInt(1) > 0) {
+                return false;
+            }
+            return true;
+		}
+		catch(Exception ex){
+			ex.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean insert(Receptionist re) {
+		try {
+            Database.loadDriver();
+            Connection con = Database.getConnection();
+
+            String sql = "INSERT INTO receptionist (name, salary, gender, phone_number, cccd, address, role, email, password, id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, re.getName());
+            ps.setFloat(2, re.getSalary());
+            ps.setString(3, re.getGender());
+            ps.setString(4, re.getPhone_number());
+            ps.setString(5, re.getCCCD());
+            ps.setString(6, re.getAddress());
+            ps.setString(7, re.getRole());
+            ps.setString(8, re.getEmail());
+            ps.setString(9, re.getPassword());
+            ps.setString(10, re.getId());
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+            	return true;
+            } else {
+            	return false;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+	}
+	
 	public Receptionist findById(String id) {
 		Connection con = null;
 		PreparedStatement ps = null;
