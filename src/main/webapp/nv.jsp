@@ -413,7 +413,7 @@
             <div class="main_QLTP_listuser_cccd"><%= booking.getCccd() %></div>
             <div class="main_QLTP_listuser_room"><%= booking.getRoom_name() %></div>
             <div class="main_QLTP_listuser_checkin"><%= booking.getCheckinDate() %></div>
-            <div class="main_QLTP_listuser_checkout"><%= booking.getCheckoutDate() %></div>
+            <div id="CheckoutDate-<%= booking.getId() %>" class="main_QLTP_listuser_checkout"><%= booking.getCheckoutDate() %></div>
             <div class="main_QLTP_listuser_button" onclick="showExtendForm('<%= booking.getId() %>')">Gia hạn</div>
 
             <!-- Form hiển thị thông tin -->
@@ -498,22 +498,33 @@
 
     // Xử lý khi form được gửi
     function submitExtendForm(bookingId) {
-        const textField = document.getElementById('textField-' + bookingId).value;
         const dateField = document.getElementById('dateField-' + bookingId).value;
-
-        fetch('save-extended', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ info: textField, date: dateField })
-        })
-            .then(response => response.json())
-            .then(data => {
-                alert('Gia hạn thành công!');
-                hideExtendForm(bookingId);
-            })
-            .catch(error => console.error('Error:', error));
+        const date = document.getElementById('CheckoutDate-' + bookingId);
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", "exended?id="+bookingId+"&time="+dateField, true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                try {
+                    const responseText = xhr.responseText;
+                    const jsonStart = responseText.indexOf("{");
+                    const jsonResponse = responseText.substring(jsonStart);
+                    const response = JSON.parse(jsonResponse);
+                    if (response.exists) {
+                        date.innerText = dateField;    
+                        const form = document.getElementById('extendForm-' + bookingId);
+                        form.style.display = 'none';
+                    } else {
+                    	alert("không gia hạn đươc");             
+                    }
+                } catch (e) {
+                    console.error("Error parsing response: ", e);
+                    errorMessage.textContent = "Đã xảy ra lỗi. Vui lòng thử lại.";
+                    submitButton.disabled = true;
+                }
+            }
+        };
+        xhr.send("id=" + encodeURIComponent(bookingId));
     }
 
     // Hàm kéo thả form

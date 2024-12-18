@@ -49,12 +49,25 @@ public class ExtendedBooking extends HttpServlet {
 	        out.flush();
         }
         else {
-        	Booking book = new Booking();
-        	book.setId(Id);
-        	book.setCheckoutDate(time);
-        	bookingDao.extendedCheckoutTime(new Booking());
-            RequestDispatcher dispatcher = req.getRequestDispatcher("nv");
-            dispatcher.forward(req, resp);
+        	boolean idExists = true;
+            try {
+            	Booking book = new Booking();
+            	book.setId(Id);
+            	book.setCheckoutDate(time);
+            	bookingDao.extendedCheckoutTime(new Booking());
+            } catch (Exception e) {
+                e.printStackTrace();
+                idExists = false;
+            }
+            // Tạo JSON response
+            String jsonResponse = "{\"exists\":" + idExists + "}";
+            // Trả về JSON response
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding("UTF-8");
+
+            PrintWriter out = resp.getWriter();
+            out.print(jsonResponse);
+            out.flush();
         }
     }
 }
